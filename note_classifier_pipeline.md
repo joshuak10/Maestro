@@ -40,9 +40,9 @@ the previous before adding complexity.
       instruments have overtones)
 - [ x] Generate multiple variations per note: different durations, added noise,
       slight amplitude/harmonic variation
-- [ ] Build a `Dataset`/`DataLoader` (PyTorch) that yields
+- [ x] Build a `Dataset`/`DataLoader` (PyTorch) that yields
       `(features, label)` pairs, where `label = midi_note - 21`
-- [ ] **Split train/val by generation seed or variation index**, not randomly
+- [x ] **Split train/val by generation seed or variation index**, not randomly
       per-sample — avoid leaking near-duplicate variations of the same note
       across the split
 
