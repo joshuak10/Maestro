@@ -5,19 +5,27 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 
+#add amp changes to generate function()
+
+
+
 REF_FREQ = 440
 
 class AudioRecordingDataset(Dataset):
-    def __init__(self, path):
+    def __init__(self, path, mean = None, std = None):
         data = np.load(path)
         self.X, self.Y, self.hv = data['X'], data['Y'], data['hv']
+        self.mean, self.std =  mean, std
 
 
     def __len__(self):
         return self.X.shape[0]
     
     def __getitem__(self, i: int):
-        return (torch.tensor(self.X[i], dtype=torch.float32), torch.tensor(self.Y[i], dtype = torch.long))
+        x = self.X[i]
+        if self.mean is not None:
+            x = (x - self.mean) / self.std
+        return (torch.tensor(x, dtype=torch.float32), torch.tensor(self.Y[i], dtype = torch.long))
 
 def midi_to_note(midi):
     return librosa.midi_to_note(midi)
