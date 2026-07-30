@@ -8,7 +8,6 @@ from torch.utils.data import Dataset, DataLoader
 #add amp changes to generate function()
 
 
-
 REF_FREQ = 440
 
 class AudioRecordingDataset(Dataset):
@@ -96,7 +95,8 @@ def add_noise(x, snr = None):
 
 HARM_VAR = [0.0, 0.05, 0.1, 0.15, 0.25]
 SNR_LEVELS = [None, 0, 10, 20, 30]
-def generate_dataset(sr=44100, duration=2):
+
+def generate_dataset(sr=44100, duration=0.5):
     dataset_x = []
     dataset_y = []
     dataset_hv = []
@@ -116,7 +116,9 @@ def generate_dataset(sr=44100, duration=2):
     hv = np.array(dataset_hv)
     return X, Y, hv
 
-
+def load_dataset(sr = 44100, path : str):
+    path = "hello"
+    return
 
 def main():
     a = AudioRecordingDataset("training_data/synth_train_data.npz")
