@@ -53,13 +53,13 @@ the previous before adding complexity.
 **Goal:** confirm the model can learn on synthetic data (this tests your
 pipeline, not real-world generalization yet).
 
-- [ ] Start with a simple feedforward network (Linear → ReLU → Dropout →
+- [x ] Start with a simple feedforward network (Linear → ReLU → Dropout →
       Linear → ReLU → Linear), input size 84, output size 88
-- [ ] Normalize features before training (subtract mean, divide by std, or
+- [x ] Normalize features before training (subtract mean, divide by std, or
       min-max scale) — raw dB-scale CQT values can destabilize training
-- [ ] Train with `CrossEntropyLoss` + Adam optimizer, ~20 epochs to start
-- [ ] Track train vs. val accuracy per epoch
-- [ ] **Target**: near-100% val accuracy on synthetic data. If you don't hit
+- [ x] Train with `CrossEntropyLoss` + Adam optimizer, ~20 epochs to start
+- [ x] Track train vs. val accuracy per epoch
+- [ x] **Target**: near-100% val accuracy on synthetic data. If you don't hit
       this, debug the pipeline (features, labels, normalization) before moving on
 
 ---

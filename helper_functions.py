@@ -46,7 +46,8 @@ def extract_features(y, sr):
     '''''''''
     
     cqt = librosa.hybrid_cqt(y, sr = sr, n_bins = 84, bins_per_octave= 12, tuning = 0.0)
-    cqt = amp_to_db(cqt)
+    #cqt = amp_to_db(cqt)
+    cqt = librosa.amplitude_to_db(S = cqt, top_db = 80)
     cqt_mean = np.mean(cqt, axis = 1)
     return cqt, cqt_mean
 
@@ -116,9 +117,7 @@ def generate_dataset(sr=44100, duration=0.5):
     hv = np.array(dataset_hv)
     return X, Y, hv
 
-def load_dataset(sr = 44100, path : str):
-    path = "hello"
-    return
+
 
 def main():
     a = AudioRecordingDataset("training_data/synth_train_data.npz")
