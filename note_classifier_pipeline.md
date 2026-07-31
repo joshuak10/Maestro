@@ -63,25 +63,6 @@ pipeline, not real-world generalization yet).
       this, debug the pipeline (features, labels, normalization) before moving on
 
 ---
-
-## Phase 4: Real Data
-
-**Goal:** see how the model performs on real instrument timbres, and expect
-accuracy to drop — this is where the real learning happens.
-
-- [ ] Choose a real dataset:
-  - NSynth (Google) — large, varied instrument/pitch dataset
-  - University of Iowa Musical Instrument Samples (MIS) — cleaner, smaller
-  - MAESTRO — real piano recordings (more complex, polyphonic)
-- [ ] Re-run feature extraction + training on this new dataset
-- [ ] Compare val accuracy to Phase 3. Investigate misclassifications:
-  - Confusions between octaves? → may need better bin resolution or more bins
-  - Confusions between adjacent semitones? → may need better time-frame
-    handling or longer analysis windows for low notes
-- [ ] (Optional) If moving to a 2D CQT spectrogram (freq × time) instead of a
-      time-averaged vector, swap the feedforward net for a small CNN to
-      capture onset/attack patterns
-
 ---
 
 ## Phase 5: Real-Time Inference
