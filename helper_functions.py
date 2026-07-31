@@ -97,7 +97,7 @@ def add_noise(x, snr = None):
 HARM_VAR = [0.0, 0.05, 0.1, 0.15, 0.25]
 SNR_LEVELS = [None, 0, 10, 20, 30]
 
-def generate_dataset(sr=44100, duration=0.5):
+def generate_dataset(sr=16000, duration=0.5):
     dataset_x = []
     dataset_y = []
     dataset_hv = []
