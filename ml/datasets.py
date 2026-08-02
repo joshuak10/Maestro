@@ -1,14 +1,8 @@
-import os
-import librosa
-import pandas as pd
-import numpy as np
 import torch
+import numpy as np
 from torch.utils.data import Dataset, DataLoader
+import app.features as af
 
-#add amp changes to generate function()
-
-
-REF_FREQ = 440
 
 class AudioRecordingDataset(Dataset):
     def __init__(self, path, mean = None, std = None):
@@ -26,37 +20,15 @@ class AudioRecordingDataset(Dataset):
             x = (x - self.mean) / self.std
         return (torch.tensor(x, dtype=torch.float32), torch.tensor(self.Y[i], dtype = torch.long))
 
-def midi_to_note(midi):
-    return librosa.midi_to_note(midi)
-
-def amp_to_db(cqt, ref = 1):
-    return 20 * np.log10(np.maximum(np.abs(cqt), 1e-10)/ref)
-
-def midi_to_Hz(midi_note: int) -> float:
-    return REF_FREQ * 2 ** ((midi_note - 69)/12)
-
 def gen_sin_wave(freq: float, time_vec, amp = 1):
     return amp * np.sin(2 * np.pi * freq * time_vec)
-
-def extract_features(y, sr):
-    '''''''''
-
-    Takes time-series, converts to CQT (frequency time domain). Averages each bin value across the recording(should take short windows)
-    
-    '''''''''
-    
-    cqt = librosa.hybrid_cqt(y, sr = sr, n_bins = 84, bins_per_octave= 12, tuning = 0.0)
-    #cqt = amp_to_db(cqt)
-    cqt = librosa.amplitude_to_db(S = cqt, top_db = 80)
-    cqt_mean = np.mean(cqt, axis = 1)
-    return cqt, cqt_mean
 
 def synth_note(midi_note: int, sr: int, duration: float, num_harmonics=3, amp=1, harmonic_variance=0.0):
 
     if midi_note < 21 or midi_note > 108:
         raise ValueError("MIDI note must be 21-108")
     
-    freq = midi_to_Hz(midi_note)
+    freq = af.midi_to_Hz(midi_note)
     t_samp = int(sr * duration)
     t = np.linspace(0, duration, t_samp, endpoint=False)
     
@@ -107,7 +79,7 @@ def generate_dataset(sr=16000, duration=0.5):
             x, _ = synth_note(midi_note, sr, duration, num_harmonics=3, harmonic_variance=harm_var)
             for snr in SNR_LEVELS:
                 x_new = add_noise(x, snr)
-                _, cqt_mean = extract_features(x_new, sr)  
+                _, cqt_mean = af.extract_features(x_new, sr)  
                 dataset_x.append(cqt_mean)
                 dataset_y.append(midi_note - 21)  # 0–87
                 dataset_hv.append(harm_var)
