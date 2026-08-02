@@ -4,7 +4,7 @@ import os
 import librosa
 import numpy as np
 
-from helper_functions import extract_features
+from app.features import extract_features
 
 DEFAULT_DATA_PATH = "nsynth-test"
 MIDI_MIN, MIDI_MAX = 21, 108

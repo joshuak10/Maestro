@@ -3,6 +3,13 @@ data/
 .DS_Store
 .vscode/
 
+# NSynth dataset downloads and cached feature arrays — large, regenerable
+nsynth-*/
+*.npz
+
+# but DO track the model — 90KB, and the app needs it at boot
+!models/*.pth
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

@@ -1,6 +1,5 @@
 import librosa
 import numpy as np
-import torch 
 
 REF_FREQ = 440
 

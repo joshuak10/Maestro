@@ -132,26 +132,36 @@ halves, so it splits:
 
 ### Checklist
 
-- [ ] `pyenv local tuner` → creates `.python-version` so the dir stops resolving
+- [x] `pyenv local tuner` → creates `.python-version` so the dir stops resolving
       to bare 3.14.2. **Commit this file.** *(done)*
-- [ ] `python -m pip freeze > requirements.txt` (use `python -m pip`, not bare
+- [x] `python -m pip freeze > requirements.txt` (use `python -m pip`, not bare
       `pip`, so it resolves to the pinned env). Then hand-split out the dev-only
       packages. Pin `librosa` and `numpy` especially — CQT output changes subtly
       across librosa versions and will silently degrade accuracy.
       Current env: **Python 3.14 · torch 2.13.0 · librosa 0.11.0 · numpy 2.4.6**.
-- [ ] Create `app/` and `ml/` with `__init__.py` in **both** — without them the
+      *(all 50 packages pinned and split; `sounddevice` + pandas/matplotlib are
+      dev-only. `jupyter` is absent from the env — notebook runs on a separate
+      kernel.)*
+- [x] Create `app/` and `ml/` with `__init__.py` in **both** — without them the
       cross-package imports won't resolve.
-- [ ] Perform the moves/splits in the table above.
-- [ ] Update every import that moved:
+- [x] Perform the moves/splits in the table above. *(`helper_functions.py`
+      deleted after the split; `script.py` restored to the repo root — it had
+      been moved into the gitignored `old_files/`, which the Phase 1 diff needs.)*
+- [x] Update every import that moved:
       - `load_validation.py` → `from app.features import extract_features`
       - `train.ipynb` → `from ml.datasets import AudioRecordingDataset, generate_dataset`
-      - `train.ipynb` → `from ml.load_validation import load_data`
-- [ ] `rm -rf __pycache__` — stale `.pyc` files under the old module names cause
+      - `train.ipynb` → `from ml.load_validation import load_data` *(2 cells)*
+      - `script.py` → `from app.features import extract_features`
+- [x] `rm -rf __pycache__` — stale `.pyc` files under the old module names cause
       genuinely confusing import errors after a restructure.
-- [ ] Add `.gitignore` entries for `nsynth-*/`, `*.npz`, `.DS_Store`.
+- [x] Add `.gitignore` entries for `nsynth-*/`, `*.npz`, `.DS_Store`.
       **Do commit** `models/*.pth` (90KB — small enough, and the app needs it).
-- [ ] Verify nothing broke: re-run `script.py` (still at root) and confirm it
+      *(added `!models/*.pth` negation so the `*.npz`/dataset rules can't catch it.)*
+- [x] Verify nothing broke: re-run `script.py` (still at root) and confirm it
       still detects notes, then open the notebook and run the import cell.
+      *(`script.py` needs a live mic, so its inference path was driven with
+      `synth_note` instead — A4/C4/A2/A5 all correct at ≥0.99 confidence,
+      checkpoint `84 → 125 → 88`. All package imports resolve from the root.)*
 
 > **Run everything from the repo root.** `from app.features import ...` only
 > resolves there — including Jupyter, which must be started from the root or the
