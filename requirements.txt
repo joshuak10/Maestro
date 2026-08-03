@@ -51,7 +51,7 @@ pycparser==3.0
 
 packaging==26.2
 
-# Phase 2 (FastAPI) — uncomment when you get there:
-# fastapi
-# uvicorn[standard]
-# python-multipart
+# Phase 2 — API server
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+python-multipart==0.0.20   # only needed if /predict ever takes form uploads
