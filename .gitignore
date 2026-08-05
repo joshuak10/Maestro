@@ -229,3 +229,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 md_files/
+
+# Vite frontend (web/) — deps and build output
+web/node_modules/
+web/dist/

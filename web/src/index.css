@@ -1,0 +1,18 @@
+html {
+    background-color:#EFD6AF;
+}
+.center-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+.counter {
+    background-color: #d6afef; 
+    border-radius: 15px;
+    border-width: thin;
+    padding: 15px
+}
+
