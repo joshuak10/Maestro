@@ -6,6 +6,8 @@ from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from app.inference import predict
 
+#html vs main.py server (are they separate?)
+
 MIN_CONF = 0.5
 
 app = FastAPI()
@@ -56,6 +58,6 @@ async def predict_endpoint(request: Request, sr: int = 16000): #request because 
     low_confidence = True if not predictions else predictions[0]["confidence"] < MIN_CONF
     return {"predictions": predictions, "low_confidence": low_confidence}
 
-_dist = Path(__file__).resolve().parent.parent / "web" / "dist"
+_dist = Path(__file__).resolve().parent.parent / "web" / "dist" #strip two dirs, go to /web/dist
 if _dist.is_dir():
     app.mount("/", StaticFiles(directory =_dist, html=True), name="static")
