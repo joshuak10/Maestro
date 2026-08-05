@@ -230,6 +230,19 @@ __marimo__/
 .streamlit/secrets.toml
 md_files/
 
-# Vite frontend (web/) — deps and build output
+# Vite frontend (web/) — deps, build output, and JS tooling leftovers
 web/node_modules/
-web/dist/
+web/dist
+web/dist-ssr
+web/logs
+*-debug.log*
+yarn-error.log*
+*.local
+
+# Editor/IDE files not already covered above
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
