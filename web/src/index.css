@@ -9,10 +9,17 @@ html {
     height: 100vh;
 }
 
-.counter {
-    background-color: #d6afef; 
+.switch {
+    background-color: #f7917e;
     border-radius: 15px;
     border-width: thin;
     padding: 15px
 }
 
+.switch-on {
+    background-color: #C4EBB9;
+}
+
+.error {
+    color: red
+}
