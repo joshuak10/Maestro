@@ -1,4 +1,4 @@
-#console.log('worklet file loaded')
+console.log('worklet file loaded')
 
 //load class
 class PcmProcessor extends AudioWorkletProcessor {
