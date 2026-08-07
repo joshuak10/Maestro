@@ -7,7 +7,7 @@ function display(result){
   return result.predictions[0].note
 }
 
-const API = import.meta.env.DEV ? 'https//localhost:8000' : ""
+const API = import.meta.env.DEV ? 'http://localhost:8000' : ""
 
 function App() {
   const [isOn, setIsOn]  = useState(false)

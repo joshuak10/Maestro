@@ -45,7 +45,7 @@ async def predict_endpoint(request: Request, sr: int = 16000): #request because 
 
     try:
         y = np.frombuffer(body, dtype=np.float32) #raw byte arra, make it mutable, check for length, and NaN values
-    except:
+    except ValueError:
         raise HTTPException(400, f"malformed PCM body")
     y = y.copy()
 
