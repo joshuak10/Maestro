@@ -1,0 +1,41 @@
+# Docker does NOT read .gitignore — this file is independent.
+# Anything listed here is excluded from the build context entirely.
+
+# --- Large, never needed to serve ---
+data/                       # 2.1GB NSynth dataset (training only)
+audio_files/                # local test clips
+.git/                       # 812MB of history
+ml/                         # training code; app/ does not import it
+
+# --- Must be excluded or the build breaks ---
+# COPY web/ ./ would clobber the clean `npm ci` install with the macOS copy
+web/node_modules/
+# stale local build; stage 1 produces dist/ fresh inside the container
+web/dist/
+
+# --- Python cruft ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Not needed at runtime ---
+md_files/
+models/linear_synth.pth     # only linear_nsynth.pth is served
+requirements-dev.txt
+script.py
+README.md
+
+# --- Editor / OS noise ---
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# --- Docker's own files ---
+Dockerfile
+.dockerignore
+render.yaml

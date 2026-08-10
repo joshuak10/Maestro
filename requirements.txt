@@ -1,4 +1,7 @@
 # App (inference server) deps only. Python 3.14.
+
+
+
 # librosa + numpy are pinned exactly: hybrid_cqt output shifts subtly across
 # versions, which silently degrades accuracy (train/serve skew).
 librosa==0.11.0
@@ -29,6 +32,8 @@ standard-chunk==3.13.0
 standard-sunau==3.13.0
 
 # torch transitive deps
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 filelock==3.32.0
 fsspec==2026.6.0
 Jinja2==3.1.6
