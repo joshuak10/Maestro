@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
+from contextlib import asynccontextmanager
 import numpy as np
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
@@ -10,7 +11,15 @@ from app.inference import predict
 
 MIN_CONF = 0.5
 
-app = FastAPI()
+#on startup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    t = np.arange(8000, dtype =np.float32) / 16000
+    predict((0.5 * np.sin(2*np.pi * 440 * t)).astype(np.float32), 16000)
+    yield
+
+
+app = FastAPI(lifespan = lifespan)
 
 #Add multiple local hosts so API can communicate between them
 origins = [
@@ -25,6 +34,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+#load model
+
 
 # API health checker required
 @app.get("/health")
