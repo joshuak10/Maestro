@@ -60,7 +60,7 @@ export default function App() {
         setIsOn(false)
       }
     }
-    
+
     start()
     //turn off
     return () => {
@@ -143,6 +143,34 @@ function TuneButton({ isOn, onToggle }) {
   )
 }
 
+function useHeadphoneCheck(active){
+  const [headphoneConnected, setHeadphoneConnected] = useState(null)
+  useEffect(() => {
+    if(!active){
+      setHeadphoneConnected(null)
+      return;
+    }
+
+    let cancelled = false
+    const checkHeadphone = async () => {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const hasHeadphone = devices.some(device => device.label.toLowerCase().includes('headphone') ||
+                                                  device.label.toLowerCase().includes('headset') ||
+                                                  device.label.toLowerCase().includes('earphone') ||
+                                                  device.label.toLowerCase().includes('airpod'));
+      if(!cancelled){
+        setHeadphoneConnected(hasHeadphone);
+      }
+    }
+    checkHeadphone()
+    navigator.mediaDevices.addEventListener('devicechange', checkHeadphone)
+    return () => {
+      cancelled = true
+      navigator.mediaDevices.removeEventListener('devicechange', checkHeadphone)
+    }
+  }, [active])
+  return headphoneConnected
+}
 
 // import { useState, useEffect } from 'react'
 
