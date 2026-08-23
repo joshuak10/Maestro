@@ -9,7 +9,7 @@ from app.inference import predict
 
 #html vs main.py server (are they separate?)
 
-MIN_CONF = 0.5
+MIN_CONF = 0.4
 
 #on startup
 @asynccontextmanager

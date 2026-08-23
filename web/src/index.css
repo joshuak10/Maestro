@@ -9,6 +9,13 @@ html {
     height: 100vh;
 }
 
+.headphone-text {
+    position: fixed;
+    left: 5rem;
+    top: 4rem;
+
+}
+
 .switch {
     background-color: #f7917e;
     border-radius: 15px;

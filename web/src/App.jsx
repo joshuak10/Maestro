@@ -1,15 +1,9 @@
 import { useState, useRef,useEffect } from 'react'
 import tunerImg from './assets/tuner.png'
 
-function display(result){
-  if (!result || result.predictions.length === 0) return "listening..."
-  if (result.low_confidence) return 'low confidence'
-  return result.predictions[0].note
-}
-
 const API = import.meta.env.DEV ? 'http://localhost:8000' : ""
 
-function App() {
+export default function App() {
   const [isOn, setIsOn]  = useState(false)
   const audioCtxRef = useRef(null)
   const streamRef = useRef(null)
@@ -66,6 +60,7 @@ function App() {
         setIsOn(false)
       }
     }
+    
     start()
     //turn off
     return () => {
@@ -82,25 +77,107 @@ function App() {
 
   return (
     <section id="center">
+      <HeadphoneNotice />
+
       <div className = "center-container">
-        <div className="hero">
-          <img src={tunerImg} className="base" width="170" height="180" alt="" />
-        </div>
-        <div>
-          <h1>Click the Button below to Tune!</h1>
-        </div>
-        {isOn && <p>{display(result)}</p>}
-        {error && <p className="error">{error}</p>}
-        <button
-          type="button"
-          className={isOn ? 'switch switch-on' : 'switch'}
-          onClick={() => setIsOn(prev => !prev)}
-          >
-          {isOn ? 'Stop Tuning' : 'Start Tuning'}
-        </button>
+        <TunerImage />
+        <Heading />
+        {isOn && <NoteDisplay result={result} />}
+        {error && <ErrorMessage message={error} />}
+        <TuneButton isOn={isOn} onToggle={() => setIsOn(prev => !prev)} />
       </div>
     </section>
   )
 }
 
-export default App
+const font = { fontFamily : '"Gill Sans", sans-serif' }
+
+function display(result){
+  if (!result || result.predictions.length === 0) return "listening..."
+  if (result.low_confidence) return 'low confidence'
+  return result.predictions[0].note
+}
+
+function HeadphoneNotice() {
+  return (
+    <div className = 'headphone-text'>
+      <p > Plug in Headphones for feedback!</p>
+    </div>
+  )
+}
+
+function TunerImage() {
+  return (
+    <div className="hero">
+      <img src={tunerImg} className="base" width="170" height="180" alt="" />
+    </div>
+  )
+}
+
+function Heading() {
+  return (
+    <div>
+      <h1>Click the Button below to Tune!</h1>
+    </div>
+  )
+}
+
+function NoteDisplay({ result }) {
+  return <p style={font}>{display(result)}</p>
+}
+
+function ErrorMessage({ message }) {
+  return <p className="error">{message}</p>
+}
+
+function TuneButton({ isOn, onToggle }) {
+  return (
+    <button
+      type="button"
+      className={isOn ? 'switch switch-on' : 'switch'}
+      style={font}
+      onClick={onToggle}
+      >
+      {isOn ? 'Stop Tuning' : 'Start Tuning'}
+    </button>
+  )
+}
+
+
+// import { useState, useEffect } from 'react'
+
+// export function useHeadphoneCheck(active) {
+//   const [isHeadphoneConnected, setIsHeadphoneConnected] = useState(null)
+
+//   useEffect(() => {
+//     if (!active) { setIsHeadphoneConnected(null); return }
+//     let cancelled = false
+
+//     const checkDevices = async () => {
+//       try {
+//         const devices = await navigator.mediaDevices.enumerateDevices()
+//         const hasHeadphones = devices
+//           .filter(d => d.kind === 'audiooutput')
+//           .some(d => {
+//             const label = d.label.toLowerCase()
+//             return label.includes('headphone') ||
+//                    label.includes('headset') ||
+//                    label.includes('earphone') ||
+//                    label.includes('airpod')
+//           })
+//         if (!cancelled) setIsHeadphoneConnected(hasHeadphones)
+//       } catch (error) {
+//         console.error("Error reading devices:", error)
+//       }
+//     }
+
+//     checkDevices()
+//     navigator.mediaDevices.addEventListener('devicechange', checkDevices)
+//     return () => {
+//       cancelled = true
+//       navigator.mediaDevices.removeEventListener('devicechange', checkDevices)
+//     }
+//   }, [active])
+
+//   return isHeadphoneConnected
+// }
