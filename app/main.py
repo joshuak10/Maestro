@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
 from contextlib import asynccontextmanager
 import numpy as np
+import time
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from app.inference import predict
@@ -33,6 +34,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Server-Timing"], #lets the frontend read predict time
 )
 
 #load model
@@ -45,7 +47,7 @@ def health_check():
 
 # API prediction call
 @app.post("/predict")
-async def predict_endpoint(request: Request, sr: int = 16000): #request because audio sample is a non-trivial data type
+async def predict_endpoint(request: Request, response: Response, sr: int = 16000): #request because audio sample is a non-trivial data type
     if sr != 16000:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail = "Sampling Rate must be 16000")
@@ -66,7 +68,9 @@ async def predict_endpoint(request: Request, sr: int = 16000): #request because 
     if np.any(~np.isfinite(y)):
         raise HTTPException(400, "contains non-finite samples")
 
+    t0 = time.perf_counter()
     predictions = await run_in_threadpool(predict, y, sr)
+    response.headers["Server-Timing"] = f"predict;dur={(time.perf_counter() - t0) * 1000:.2f}" #visible in browser devtools
     low_confidence = True if not predictions else predictions[0]["confidence"] < MIN_CONF
     return {"predictions": predictions, "low_confidence": low_confidence}
 

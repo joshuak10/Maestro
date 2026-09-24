@@ -122,8 +122,13 @@ function Heading() {
   )
 }
 
-function NoteDisplay({ result }) {
-  return <p style={font}>{display(result)}</p>
+//play audio as well
+function NoteDisplay({ result , headphoneOn}) {
+  return( 
+  <>
+    <p style={font}>{display(result)}</p>
+  </>
+  )
 }
 
 function ErrorMessage({ message }) {

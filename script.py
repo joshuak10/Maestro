@@ -11,8 +11,6 @@ channels = 1
 duration = 0.5
 block_size = int(SAMPLE_RATE * duration)
 
-MIDI_MIN = 21
-CONF_THRESHOLD = 0.5
 TOP_DB = 40
 
 audio_queue = queue.Queue()
@@ -59,10 +57,9 @@ def ml_process_loop():
 
             with torch.no_grad():
                 probs = model(x).softmax(1).squeeze(0)
-
             conf, idx = probs.max(0)
-            if conf.item() > CONF_THRESHOLD:
-                print(f"{librosa.midi_to_note(idx.item() + MIDI_MIN)}  {conf.item():.2f}")
+            if conf.item() > 0.5:
+                print(f"{librosa.midi_to_note(idx.item() + 21)}  {conf.item():.2f}")
 
     except KeyboardInterrupt:
         print("Recording Stopped")

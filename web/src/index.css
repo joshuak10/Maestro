@@ -13,14 +13,16 @@ html {
     position: fixed;
     left: 5rem;
     top: 4rem;
-
+    font-size: 2rem;
 }
 
 .switch {
     background-color: #f7917e;
     border-radius: 15px;
     border-width: thin;
-    padding: 15px
+    padding: 15px;
+    font-size: 2rem;
+    font-weight: bolder;
 }
 
 .switch-on {
