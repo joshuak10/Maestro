@@ -2,7 +2,7 @@ old_files/
 data/
 .DS_Store
 .vscode/
-script
+bench
 
 
 # NSynth dataset downloads and cached feature arrays — large, regenerable
