@@ -1,34 +1,193 @@
-html {
-    background-color:#EFD6AF;
-}
-.center-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
+/* palette pulled from the tuner icon: plum body, lime screen, coral button */
+:root {
+    --bg: #EFD6AF;
+    --card: #FBF3E6;
+    --ink: #3A2334;
+    --ink-soft: #7A6272;
+    --plum: #633A5A;
+    --plum-dark: #4A2A43;
+    --lcd: #BCD152;
+    --lcd-ink: #2F3A0C;
+    --coral: #F26D5B;
+    --coral-dark: #D9503F;
+    --error: #B3261E;
+    --font: "Gill Sans", "Gill Sans MT", "Trebuchet MS", sans-serif;
 }
 
-.headphone-text {
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+}
+
+.page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4.5rem 16px 2rem;
+}
+
+.headphone-notice {
     position: fixed;
-    left: 5rem;
-    top: 4rem;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: var(--card);
+    box-shadow: 0 2px 8px rgba(58, 35, 52, 0.12);
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.tuner-card {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+    background: var(--card);
+    border-radius: 28px;
+    box-shadow: 0 12px 32px rgba(58, 35, 52, 0.15);
+}
+
+.tuner-img {
+    width: 96px;
+    height: 96px;
+}
+
+.heading { text-align: center; }
+.heading h1 {
+    margin: 0;
+    font-size: 2.25rem;
+    letter-spacing: 0.02em;
+}
+.subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--ink-soft);
+}
+
+/* the "screen", styled after the icon's display */
+.lcd {
+    width: 100%;
+    height: 170px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--lcd);
+    color: var(--lcd-ink);
+    border: 4px solid var(--plum-dark);
+    border-radius: 16px;
+    box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.lcd-status {
+    font-size: 1.4rem;
+    opacity: 0.7;
+}
+
+.lcd-note {
+    font-size: 5rem;
+    font-weight: bold;
+    line-height: 1;
+    transition: opacity 0.15s;
+}
+.lcd-note.dim { opacity: 0.35; }
+.lcd-accidental {
+    font-family: system-ui, sans-serif;
+    font-size: 2.4rem;
+    font-weight: bold;
+    vertical-align: 1.9rem;
+    margin-left: 0.05em;
+}
+.lcd-octave {
     font-size: 2rem;
+    margin-left: 0.1em;
+}
+
+.confidence {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+}
+.confidence-bar {
+    width: 120px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(47, 58, 12, 0.2);
+    overflow: hidden;
+}
+.confidence-bar > div {
+    height: 100%;
+    background: var(--lcd-ink);
+    transition: width 0.1s linear;
+}
+
+.dots {
+    display: inline-block;
+    width: 1.2em; /* reserve room so the text doesn't shift as dots appear */
+    text-align: left;
+}
+.dots::after {
+    content: "";
+    animation: dots 1.2s steps(4) infinite;
+}
+@keyframes dots {
+    0%   { content: ""; }
+    25%  { content: "."; }
+    50%  { content: ".."; }
+    75%  { content: "..."; }
 }
 
 .switch {
-    background-color: #f7917e;
-    border-radius: 15px;
-    border-width: thin;
-    padding: 15px;
-    font-size: 2rem;
-    font-weight: bolder;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    border: none;
+    border-radius: 999px;
+    background-color: var(--plum);
+    color: #fff;
+    font-family: var(--font);
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--plum-dark);
+    transition: transform 0.05s, box-shadow 0.05s, background-color 0.15s;
+}
+.switch:hover { background-color: var(--plum-dark); }
+.switch:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--plum-dark);
+}
+.switch:focus-visible {
+    outline: 3px solid var(--coral);
+    outline-offset: 3px;
 }
 
 .switch-on {
-    background-color: #C4EBB9;
+    background-color: var(--coral);
+    box-shadow: 0 4px 0 var(--coral-dark);
 }
+.switch-on:hover { background-color: var(--coral-dark); }
+.switch-on:active { box-shadow: 0 1px 0 var(--coral-dark); }
 
 .error {
-    color: red
+    margin: 0;
+    color: var(--error);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dots::after { animation: none; content: "..."; }
+    .switch, .lcd-note, .confidence-bar > div { transition: none; }
 }

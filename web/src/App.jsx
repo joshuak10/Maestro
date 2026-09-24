@@ -76,63 +76,80 @@ export default function App() {
   }, [isOn])
 
   return (
-    <section id="center">
+    <main className="page">
       <HeadphoneNotice />
 
-      <div className = "center-container">
+      <div className="tuner-card">
         <TunerImage />
         <Heading />
-        {isOn && <NoteDisplay result={result} />}
+        <NoteDisplay isOn={isOn} result={result} />
         {error && <ErrorMessage message={error} />}
-        <TuneButton isOn={isOn} onToggle={() => setIsOn(prev => !prev)} />
+        <TuneButton isOn={isOn} onToggle={() => { setError(null); setIsOn(prev => !prev) }} />
       </div>
-    </section>
+    </main>
   )
 }
 
-const font = { fontFamily : '"Gill Sans", sans-serif' }
-
-function display(result){
-  if (!result || result.predictions.length === 0) return "listening..."
-  if (result.low_confidence) return 'low confidence'
-  return result.predictions[0].note
+//librosa sends notes like "A♯4" -> split into letter, sharp/flat, octave so each can be styled
+function splitNote(note){
+  const m = note.match(/^([A-G])([♯#♭b]?)(-?\d+)$/)
+  return m ? { letter: m[1], accidental: m[2], octave: m[3] } : { letter: note, accidental: '', octave: '' }
 }
 
 function HeadphoneNotice() {
   return (
-    <div className = 'headphone-text'>
-      <p > Plug in Headphones for feedback!</p>
-    </div>
+    <p className="headphone-notice"> Plug in headphones for feedback</p>
   )
 }
 
 function TunerImage() {
   return (
-    <div className="hero">
-      <img src={tunerImg} className="base" width="170" height="180" alt="" />
-    </div>
+    <img src={tunerImg} className="tuner-img" width="120" height="120" alt="" />
   )
 }
 
 function Heading() {
   return (
-    <div>
-      <h1>Click the Button below to Tune!</h1>
-    </div>
+    <header className="heading">
+      <h1>Tuner</h1>
+      <p className="subtitle">Play a single note and hold it steady</p>
+    </header>
   )
 }
 
 //play audio as well
-function NoteDisplay({ result , headphoneOn}) {
-  return( 
-  <>
-    <p style={font}>{display(result)}</p>
-  </>
-  )
+//screen is always rendered so the page doesn't jump when tuning starts/stops
+function NoteDisplay({ isOn, result }) {
+  const top = result?.predictions?.[0]
+
+  let body
+  if (!isOn) {
+    body = <span className="lcd-status">press start</span>
+  } else if (!top) {
+    body = <span className="lcd-status listening">listening<span className="dots" /></span>
+  } else {
+    const { letter, accidental, octave } = splitNote(top.note)
+    const pct = Math.round(top.confidence * 100)
+    body = (
+      <>
+        <div className={result.low_confidence ? 'lcd-note dim' : 'lcd-note'}>
+          {letter}
+          {accidental && <span className="lcd-accidental">{accidental}</span>}
+          <span className="lcd-octave">{octave}</span>
+        </div>
+        <div className="confidence">
+          <div className="confidence-bar"><div style={{ width: `${pct}%` }} /></div>
+          <span>{result.low_confidence ? 'low confidence' : `${pct}%`}</span>
+        </div>
+      </>
+    )
+  }
+
+  return <div className="lcd" aria-live="polite">{body}</div>
 }
 
 function ErrorMessage({ message }) {
-  return <p className="error">{message}</p>
+  return <p className="error" role="alert">{message}</p>
 }
 
 function TuneButton({ isOn, onToggle }) {
@@ -140,7 +157,6 @@ function TuneButton({ isOn, onToggle }) {
     <button
       type="button"
       className={isOn ? 'switch switch-on' : 'switch'}
-      style={font}
       onClick={onToggle}
       >
       {isOn ? 'Stop Tuning' : 'Start Tuning'}

@@ -4,7 +4,7 @@ const WINDOW = 8000 // 0.5s @ 16kHz — what the model was trained on
 const HOP = 1600    // send every 0.1s, so consecutive windows overlap by 0.4s
 
 //load class
-class PcmProcessor extends AudioWorkletProcessor {
+class PcmProcessor extends AudioWorkletProcessor { //must extend audioworkletprocessor
     constructor(){
         super();
         this._buffer = new Float32Array(WINDOW) //ring buffer, always holds the latest 0.5s
