@@ -1,0 +1,23 @@
+# Local development only. Run the app on the host with uvicorn --reload.
+# These credentials are throwaway dev values; real ones live in Render env vars.
+# POSTGRES_* are only read when the volume is empty, so after changing them
+# run `docker compose down -v` once to re-initialize.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: maestro
+      POSTGRES_PASSWORD: maestro
+      POSTGRES_DB: maestro
+    volumes:
+      - db_data:/var/lib/postgresql   # PG 18+ data path (was .../data before 18)
+    ports:
+      - "127.0.0.1:5432:5432"         # localhost only, not reachable from the network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:

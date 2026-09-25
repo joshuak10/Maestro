@@ -60,3 +60,16 @@ packaging==26.2
 fastapi==0.141.1
 uvicorn[standard]==0.52.1
 python-multipart==0.0.20   # only needed if /predict ever takes form uploads
+
+# Phase 3 — accounts: DB + auth
+SQLAlchemy==2.1.1
+alembic==1.20.0
+psycopg[binary]==3.3.6
+bcrypt==5.0.0
+PyJWT==2.15.0
+email-validator==2.3.0   # required by pydantic's EmailStr
+
+# accounts transitive deps
+psycopg-binary==3.3.6    # psycopg[binary] extra
+Mako==1.4.3              # alembic
+dnspython==2.8.0         # email-validator
