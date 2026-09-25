@@ -1,7 +1,7 @@
 console.log('worklet file loaded')
 
-const WINDOW = 8000 // 0.5s @ 16kHz — what the model was trained on
-const HOP = 1600    // send every 0.1s, so consecutive windows overlap by 0.4s
+const WINDOW = 2048
+const HOP = 512  
 
 //load class
 class PcmProcessor extends AudioWorkletProcessor { //must extend audioworkletprocessor
@@ -24,7 +24,6 @@ class PcmProcessor extends AudioWorkletProcessor { //must extend audioworkletpro
             this._sinceSend++
 
             if (this._filled === WINDOW && this._sinceSend >= HOP){
-                //unroll the ring so samples go out oldest -> newest
                 const out = new Float32Array(WINDOW)
                 out.set(this._buffer.subarray(this._write))
                 out.set(this._buffer.subarray(0, this._write), WINDOW - this._write)
