@@ -68,8 +68,11 @@ psycopg[binary]==3.3.6
 bcrypt==5.0.0
 PyJWT==2.15.0
 email-validator==2.3.0   # required by pydantic's EmailStr
+pydantic-settings==2.15.0
 
 # accounts transitive deps
 psycopg-binary==3.3.6    # psycopg[binary] extra
 Mako==1.4.3              # alembic
 dnspython==2.8.0         # email-validator
+python-dotenv==1.2.2     # pydantic-settings (.env loading)
+typing-inspection==0.4.2 # pydantic-settings
