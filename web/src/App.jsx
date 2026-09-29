@@ -3,8 +3,16 @@ import tunerImg from './assets/tuner.png'
 
 const API = import.meta.env.DEV ? 'http://localhost:8000' : ""
 
+//drone tuning: predictions arrive every ~32ms, so 2 matching frames (~60ms) is enough to follow quick passages
+const STABLE_FRAMES = 2
+const RELEASE_MS = 250   //keep ringing through short gaps between notes, then fade out
+const DRONE_VOLUME = 0.15
+const GLIDE = 0.01       //setTargetAtTime time constants (s): pitch reaches the new note in ~30ms
+const FADE = 0.03
+
 export default function App() {
   const [isOn, setIsOn]  = useState(false)
+  const [soundOn, setSoundOn] = useState(true)
   const audioCtxRef = useRef(null)
   const streamRef = useRef(null)
   const audioNode = useRef(null)
@@ -75,6 +83,8 @@ export default function App() {
     
   }, [isOn])
 
+  useDrone(isOn && soundOn, result)
+
   return (
     <main className="page">
       <HeadphoneNotice />
@@ -85,6 +95,7 @@ export default function App() {
         <NoteDisplay isOn={isOn} result={result} />
         {error && <ErrorMessage message={error} />}
         <TuneButton isOn={isOn} onToggle={() => { setError(null); setIsOn(prev => !prev) }} />
+        <SoundToggle soundOn={soundOn} onToggle={() => setSoundOn(prev => !prev)} />
       </div>
     </main>
   )
@@ -94,6 +105,84 @@ export default function App() {
 function splitNote(note){
   const m = note.match(/^([A-G])([♯#♭b]?)(-?\d+)$/)
   return m ? { letter: m[1], accidental: m[2], octave: m[3] } : { letter: note, accidental: '', octave: '' }
+}
+
+//same formula as midi_to_Hz in app/features.py
+function midiToHz(midi){
+  return 440 * 2 ** ((midi - 69) / 12)
+}
+
+//reference tone that follows the detected note
+//without headphones the mic hears the drone and the tuner can lock onto its own output
+function useDrone(active, result){
+  const ctxRef = useRef(null)
+  const oscRef = useRef(null)
+  const gainRef = useRef(null)
+  const soundingRef = useRef(false)
+  const candidateRef = useRef({ midi: null, count: 0 })
+  const releaseRef = useRef(null)
+
+  //own context at the default rate: the 16kHz capture context would cut off high notes and overtones
+  useEffect(() => {
+    if (!active) return
+    const ctx = new AudioContext()
+    ctx.resume()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.type = 'triangle' //softer than square, easier to hear than a pure sine on small speakers
+    gain.gain.value = 0
+    osc.connect(gain).connect(ctx.destination)
+    osc.start()
+    ctxRef.current = ctx
+    oscRef.current = osc
+    gainRef.current = gain
+
+    return () => {
+      clearTimeout(releaseRef.current)
+      ctx.close()
+      ctxRef.current = null
+      oscRef.current = null
+      gainRef.current = null
+      soundingRef.current = false
+      candidateRef.current = { midi: null, count: 0 }
+    }
+  }, [active])
+
+  useEffect(() => {
+    const ctx = ctxRef.current
+    if (!ctx) return
+
+    const top = result?.predictions?.[0]
+    const candidate = candidateRef.current
+    if (!top || result.low_confidence) {
+      //silence/unsure: don't cut the drone here, the release timer fades it if this lasts
+      candidate.midi = null
+      candidate.count = 0
+      return
+    }
+    candidate.count = candidate.midi === top.midi ? candidate.count + 1 : 1
+    candidate.midi = top.midi
+    if (candidate.count < STABLE_FRAMES) return
+
+    const now = ctx.currentTime
+    const hz = midiToHz(top.midi)
+    if (soundingRef.current) {
+      oscRef.current.frequency.setTargetAtTime(hz, now, GLIDE)
+    } else {
+      //coming back from silence: jump straight to the note instead of sliding up from the last one
+      oscRef.current.frequency.cancelScheduledValues(now)
+      oscRef.current.frequency.setValueAtTime(hz, now)
+    }
+    gainRef.current.gain.setTargetAtTime(DRONE_VOLUME, now, FADE)
+    soundingRef.current = true
+
+    clearTimeout(releaseRef.current)
+    releaseRef.current = setTimeout(() => {
+      if (!ctxRef.current) return
+      gainRef.current.gain.setTargetAtTime(0, ctxRef.current.currentTime, FADE)
+      soundingRef.current = false
+    }, RELEASE_MS)
+  }, [result])
 }
 
 function HeadphoneNotice() {
@@ -117,7 +206,6 @@ function Heading() {
   )
 }
 
-//play audio as well
 //screen is always rendered so the page doesn't jump when tuning starts/stops
 function NoteDisplay({ isOn, result }) {
   const top = result?.predictions?.[0]
@@ -160,6 +248,19 @@ function TuneButton({ isOn, onToggle }) {
       onClick={onToggle}
       >
       {isOn ? 'Stop Tuning' : 'Start Tuning'}
+    </button>
+  )
+}
+
+function SoundToggle({ soundOn, onToggle }) {
+  return (
+    <button
+      type="button"
+      className="sound-toggle"
+      aria-pressed={soundOn}
+      onClick={onToggle}
+      >
+      {soundOn ? 'Reference tone: on' : 'Reference tone: off'}
     </button>
   )
 }

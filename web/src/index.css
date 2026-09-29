@@ -182,6 +182,28 @@ html, body {
 .switch-on:hover { background-color: var(--coral-dark); }
 .switch-on:active { box-shadow: 0 1px 0 var(--coral-dark); }
 
+/* secondary control under the main switch: outlined so it doesn't compete with it */
+.sound-toggle {
+    margin-top: -0.5rem;
+    padding: 0.4rem 1rem;
+    border: 2px solid var(--plum);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--plum);
+    font-family: var(--font);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+}
+.sound-toggle[aria-pressed="true"] {
+    background: var(--plum);
+    color: #fff;
+}
+.sound-toggle:focus-visible {
+    outline: 3px solid var(--coral);
+    outline-offset: 3px;
+}
+
 .error {
     margin: 0;
     color: var(--error);
@@ -189,5 +211,5 @@ html, body {
 
 @media (prefers-reduced-motion: reduce) {
     .dots::after { animation: none; content: "..."; }
-    .switch, .lcd-note, .confidence-bar > div { transition: none; }
+    .switch, .sound-toggle, .lcd-note, .confidence-bar > div { transition: none; }
 }
