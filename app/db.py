@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.config import settings
 
-#predictable constraint names (e.g. uq_users_email) so alembic and error handling can refer to them
+#predictable constraint names (e.g. uq_users_username) so alembic and error handling can refer to them
 #check constraints must be given a name= for the "ck" pattern to work
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
