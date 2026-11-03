@@ -21,8 +21,23 @@ def signup(body: SignupIn, db: Session = Depends(get_db)) -> User:
     IntegrityError -> db.rollback() -> 409 (check e.orig.diag.constraint_name).
     Doesn't log the user in; the frontend calls /auth/login next.
     """
-    raise NotImplementedError("Step 8: POST /auth/signup")
-
+    user = User(
+        name=body.name,
+        username=body.username,
+        password_hash=hash_password(body.password),
+        role=body.role,
+    )
+    try:
+        db.add(user)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        if e.orig.diag.constraint_name == "uq_users_username":
+            raise HTTPException(status.HTTP_409_CONFLICT, "Username already taken") from e
+        raise  #anything else is a real bug -> 500
+    
+    db.refresh(user)  #loads the server-set id and created_at
+    return user
 
 @router.post("/login", response_model=TokenOut)
 def login(body: LoginIn, db: Session = Depends(get_db)) -> TokenOut:
