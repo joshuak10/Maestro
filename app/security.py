@@ -13,15 +13,15 @@ def hash_password(password: str) -> str:
     bcrypt works on bytes: .encode() going in, .decode() the result to store it.
     """
     password_bytes = password.encode('utf-8')
-    seed = bcrypt.gensalt(round = 12)
+    seed = bcrypt.gensalt(rounds = 12)
     hashed_pword = bcrypt.hashpw(password_bytes, seed)
-    raise NotImplementedError("Step 7: hash_password")
+    return hashed_pword.decode('utf-8')
 
 
 def verify_password(password: str, hashed: str) -> bool:
     """True if `password` matches the stored bcrypt hash."""
     password_bytes = password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hashed)
+    return bcrypt.checkpw(password_bytes, hashed.encode("utf-8"))
 
 
 def create_access_token(user_id: int) -> str:
@@ -29,7 +29,13 @@ def create_access_token(user_id: int) -> str:
 
     Secret: settings.jwt_secret.get_secret_value()
     """
-    raise NotImplementedError("Step 7: create_access_token")
+    token = {
+        "sub": str(user_id),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=TOKEN_MINUTES)
+    }
+
+    #jwt.encode(package, encrypter, algorithm)
+    return jwt.encode(token, settings.jwt_secret.get_secret_value(), algorithm=ALGORITHM)
 
 
 def decode_access_token(token: str) -> int | None:
@@ -37,4 +43,10 @@ def decode_access_token(token: str) -> int | None:
 
     Pin algorithms=[ALGORITHM]; every failure is a jwt.InvalidTokenError subclass.
     """
+    try:
+        payload = jwt.decode(token, settings.jwt_secret.get_secret_value(), algorithms = [ALGORITHM])
+        return int(payload["sub"])
+    except jwt.InvalidTokenError:
+        return None
+
     raise NotImplementedError("Step 7: decode_access_token")
