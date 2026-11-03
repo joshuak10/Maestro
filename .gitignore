@@ -3,7 +3,8 @@ data/
 .DS_Store
 .vscode/
 bench.py
-evaluation_scripts/
+.plans/
+script.py
 
 # NSynth dataset downloads and cached feature arrays — large, regenerable
 nsynth-*/
