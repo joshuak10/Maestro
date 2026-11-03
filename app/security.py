@@ -12,12 +12,16 @@ def hash_password(password: str) -> str:
 
     bcrypt works on bytes: .encode() going in, .decode() the result to store it.
     """
+    password_bytes = password.encode('utf-8')
+    seed = bcrypt.gensalt(round = 12)
+    hashed_pword = bcrypt.hashpw(password_bytes, seed)
     raise NotImplementedError("Step 7: hash_password")
 
 
 def verify_password(password: str, hashed: str) -> bool:
     """True if `password` matches the stored bcrypt hash."""
-    raise NotImplementedError("Step 7: verify_password")
+    password_bytes = password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed)
 
 
 def create_access_token(user_id: int) -> str:
