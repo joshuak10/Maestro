@@ -15,4 +15,5 @@ def list_scales(
     db: Session = Depends(get_db),
 ) -> list[Scale]:
     """Every scale, ordered by id."""
-    raise NotImplementedError("Step 10: GET /scales")
+    return db.scalars(select(Scale).order_by(Scale.id)).all()
+

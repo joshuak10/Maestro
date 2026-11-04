@@ -44,6 +44,13 @@ def require_role(*roles: Role) -> Callable[..., User]:
     """Dependency factory: Depends(require_role(Role.TEACHER)) -> the User, or 403."""
 
     def checker(user: User = Depends(get_current_user)) -> User:
-        raise NotImplementedError("Step 10: require_role")
+        if user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail = "not allowed",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        return user
 
     return checker
