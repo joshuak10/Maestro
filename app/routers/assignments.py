@@ -29,7 +29,36 @@ def create_assignments(
          .returning(Assignment)
        -> db.scalars(stmt).all(); commit ONCE; return those rows (may be []).
     """
-    raise NotImplementedError("Step 11: POST /assignments")
+    student = db.scalar(select(User).where(User.username == body.student_username).where(User.role == Role.STUDENT))
+    if not student:
+        raise HTTPException(
+            status_code= status.HTTP_400_BAD_REQUEST,
+            detail="No student with that username"
+        )
+
+    ids = list(dict.fromkeys(body.scale_ids))
+    
+    existing = set(db.scalars(select(Scale.id).where(Scale.id.in_(ids))))
+    missing = [scale_id for scale_id in ids if scale_id not in existing]
+    if missing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown scale ids: {missing}",
+        )
+
+    rows = [
+        {"teacher_id": teacher.id, "student_id": student.id, "scale_id": scale_id}
+        for scale_id in ids
+    ]
+    stmt = (
+        insert(Assignment)
+        .values(rows)
+        .on_conflict_do_nothing(constraint=UNIQUE_ASSIGNMENT)
+        .returning(Assignment)
+    )
+    created = db.scalars(stmt).all()
+    db.commit()
+    return created
 
 
 #keep /me above any future /{assignment_id} route, or "me" would be parsed as an id

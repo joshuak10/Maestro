@@ -47,8 +47,7 @@ def require_role(*roles: Role) -> Callable[..., User]:
         if user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail = "not allowed",
-                headers={"WWW-Authenticate": "Bearer"}
+                detail = "Not allowed",
             )
         
         return user
