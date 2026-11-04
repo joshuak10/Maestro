@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import require_role
 from app.models import Assignment, Role, Scale, User
@@ -37,8 +37,9 @@ def create_assignments(
         )
 
     ids = list(dict.fromkeys(body.scale_ids))
-    
-    existing = set(db.scalars(select(Scale.id).where(Scale.id.in_(ids))))
+
+    #load every id and compare in Python: a huge id in a WHERE would overflow INTEGER -> 500
+    existing = set(db.scalars(select(Scale.id)))
     missing = [scale_id for scale_id in ids if scale_id not in existing]
     if missing:
         raise HTTPException(
@@ -71,4 +72,9 @@ def my_assignments(
 
     selectinload(Assignment.scale) and selectinload(Assignment.teacher) -> no N+1.
     """
-    raise NotImplementedError("Step 12: GET /assignments/me")
+    stmt = (
+        select(Assignment).where(Assignment.student_id == student.id).order_by(Assignment.created_at.desc(), Assignment.id.desc())
+    )
+    return db.scalars(stmt).all()
+
+

@@ -24,6 +24,13 @@ def _password_fits_bcrypt(v: str) -> str:
     return v
 
 
+def _no_nul(v: str) -> str:
+    """Postgres text can't store a NUL byte; reject it here (422) so the insert can't fail (500)."""
+    if "\x00" in v:
+        raise ValueError("Must not contain NUL characters")
+    return v
+
+
 #defined once; signup, login and assignments all reuse it so they normalize the same way
 Username = Annotated[
     str,
@@ -31,7 +38,7 @@ Username = Annotated[
     Field(min_length=3, max_length=30, pattern=r"^[a-z0-9_]+$"),
 ]
 Password = Annotated[str, Field(min_length=8), AfterValidator(_password_fits_bcrypt)]
-Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100), AfterValidator(_no_nul)]
 
 
 # --- auth ---
