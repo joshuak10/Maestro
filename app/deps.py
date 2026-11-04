@@ -20,7 +20,24 @@ def get_current_user(
     Load the user from the DB every time (db.get(User, user_id)), so a deleted
     user's token stops working immediately.
     """
-    raise NotImplementedError("Step 9: get_current_user")
+    unauthorized = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if credentials is None:
+        raise unauthorized
+
+    user_id = decode_access_token(credentials.credentials)
+    if user_id is None:
+        raise unauthorized
+
+    user = db.get(User, user_id)
+    if user is None:
+        raise unauthorized
+
+    return user
 
 
 def require_role(*roles: Role) -> Callable[..., User]:

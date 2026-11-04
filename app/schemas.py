@@ -4,19 +4,24 @@ from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Fie
 from app.models import Role
 
 MAX_PASSWORD_BYTES = 72  #bcrypt 5 raises on longer input -> must be a 422, not a 500
-
+ 
 
 def _normalize_username(v: object) -> object:
     """Runs BEFORE the length/pattern checks: strip + lowercase so `Alex ` == `alex`.
 
     Return non-str values unchanged and let pydantic reject them.
     """
-    raise NotImplementedError("Step 8: _normalize_username")
+    if isinstance(v, str):
+        v = v.strip().lower()    
+    return v
 
 
 def _password_fits_bcrypt(v: str) -> str:
     """Raise ValueError if the UTF-8 encoding is longer than MAX_PASSWORD_BYTES ("é" is 2 bytes)."""
-    raise NotImplementedError("Step 8: _password_fits_bcrypt")
+    v_encode = v.encode('utf-8')
+    if len(v_encode) > MAX_PASSWORD_BYTES:
+        raise ValueError('Password too long')
+    return v
 
 
 #defined once; signup, login and assignments all reuse it so they normalize the same way
@@ -40,7 +45,7 @@ class SignupIn(BaseModel):
 
 class LoginIn(BaseModel):
     username: Username
-    password: str
+    password: Annotated[str, AfterValidator(_password_fits_bcrypt)]
 
 
 class TokenOut(BaseModel):
