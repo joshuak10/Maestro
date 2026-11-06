@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from app.inference import predict
+from app.routers import assignments, auth, scales
 
 #html vs main.py server (are they separate?)
 
@@ -73,6 +74,11 @@ async def predict_endpoint(request: Request, response: Response, sr: int = 16000
     response.headers["Server-Timing"] = f"predict;dur={(time.perf_counter() - t0) * 1000:.2f}" #visible in browser devtools
     low_confidence = True if not predictions else predictions[0]["confidence"] < MIN_CONF
     return {"predictions": predictions, "low_confidence": low_confidence}
+
+#API routers must be included ABOVE the static mount, or "/" would swallow them
+app.include_router(auth.router)
+app.include_router(scales.router)
+app.include_router(assignments.router)
 
 _dist = Path(__file__).resolve().parent.parent / "web" / "dist" #strip two dirs, go to /web/dist
 if _dist.is_dir():

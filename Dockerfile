@@ -13,6 +13,9 @@ RUN pip install -r requirements.txt \
         --extra-index-url https://download.pytorch.org/whl/cpu
 COPY app/ app/
 COPY models/linear_nsynth.pth models/
+COPY alembic.ini .
+COPY migrations/ migrations/
 COPY --from=frontend /web/dist web/dist
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1
+#migrate + seed on start (safe with a single instance); exec so uvicorn gets Render's SIGTERM
+CMD alembic upgrade head && python -m app.seed && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1
