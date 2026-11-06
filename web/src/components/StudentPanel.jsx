@@ -9,11 +9,19 @@ export default function StudentPanel() {
 
   useEffect(() => {
     let cancelled = false
-    // TODO step 17: apiFetch('/assignments/me')
-    //  .then -> if (!cancelled) setAssignments(data), setLoadState('ready')
-    //  .catch -> if (!cancelled) setError(err.message), setLoadState('error')
-    setError('TODO step 17: load assignments')
-    setLoadState('error')
+    
+    apiFetch('/assignments/me')
+      .then(data => {
+        if (cancelled) return
+        setAssignments(data)
+        setLoadState('ready')
+      })
+      .catch(err =>{
+        if (cancelled) return
+        setError(err.message)
+        setLoadState('error')
+      })
+    
     return () => { cancelled = true }
   }, [])
 

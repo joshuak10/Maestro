@@ -13,12 +13,22 @@ export default function TeacherPanel() {
   const [status, setStatus] = useState(null) //{ kind: 'success' | 'error', text }
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false //d
+
     // TODO step 16: apiFetch('/scales')
     //  .then -> if (!cancelled) setScales(data), setLoadState('ready')
     //  .catch -> if (!cancelled) setLoadError(err.message), setLoadState('error')
-    setLoadError('TODO step 16: load scales')
-    setLoadState('error')
+    apiFetch('/scales')
+      .then(data=>{
+        if(cancelled) return
+        setScales(data)
+        setLoadState('ready')
+      })
+      .catch(err=>{
+        if (cancelled) return
+        setLoadError(err.message)
+        setLoadState('error')
+      })
     return () => { cancelled = true }
   }, [])
 
@@ -35,16 +45,26 @@ export default function TeacherPanel() {
 
   const handleSend = async (e) => {
     e.preventDefault()
-    // TODO step 16:
-    //  - setPending(true), setStatus(null)
-    //  - const created = await apiFetch('/assignments', { method: 'POST',
-    //        body: { student_username: studentUsername, scale_ids: [...selected] } })
-    //  - created.length === 0 -> "Already assigned, nothing new"
-    //    else "Assigned G Major, D Major to alex" (map scale_id -> name via `scales`)
-    //  - on success: clear `selected`, KEEP studentUsername
-    //  - catch: setStatus({ kind: 'error', text: err.message }); finally setPending(false)
-    setStatus({ kind: 'error', text: 'TODO step 16: handleSend' })
+    setPending(true)
+    setStatus(null)
+    try{
+      const created = await apiFetch('/assignments', {
+        method: 'POST', body: { student_username: studentUsername, scale_ids: [...selected]}
+      })
+
+      if (created.length === 0){
+        setStatus({kind: "success", text: "Already assigned, nothing new"})
+      }else{
+        setStatus({kind: "success", text: "Assigned scales"})
+      }
+      setSelected(new Set())
+    } catch (err){
+      setStatus({kind: 'error', text: err.message})
+    } finally{
+      setPending(false)
+    }
   }
+  
 
   return (
     <section className="card panel">

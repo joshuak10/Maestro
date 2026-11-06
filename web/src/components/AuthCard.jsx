@@ -20,15 +20,21 @@ export default function AuthCard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault() //onSubmit on the <form> -> Enter works too
-    // TODO step 15:
-    //  - setError(null), setPending(true)
-    //  - isSignup ? await signup({ name, username, password, role }) : await login(username, password)
-    //  - catch: setError(err.message)   (409 "taken", 401 "Invalid username or password", 422 details)
-    //  - finally: setPending(false)
-    //  On success AuthContext flips status -> App swaps this card out; nothing else to do here.
-    setError('TODO step 15: handleSubmit')
+    setError(null)
+    setPending(true)
+    try{
+      if (isSignup){
+        await signup({name,username,password,role})
+      }else{
+        await login(username,password)
+      }
+    } catch (err){
+        setError(err.message)
+    } finally {
+      setPending(false)
+    }
   }
-
+ 
   return (
     <section className="card auth-card">
       <header className="heading">

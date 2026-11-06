@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { apiFetch, getToken, setOnUnauthorized } from '../api'
+import { apiFetch, getToken, setOnUnauthorized, setToken, clearToken} from '../api'
 
 const AuthContext = createContext(null)
 
@@ -36,22 +36,34 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (username, password) => {
-    // TODO step 14:
-    //  1. POST /auth/login with { username, password }, auth: false
-    //  2. setToken(access_token)
-    //  3. GET /auth/me -> setUser(me), setStatus('authenticated')
-    //  Let ApiErrors propagate: AuthCard shows err.message.
-    throw new Error('TODO step 14: login')
+    //no try/catch: ApiErrors propagate so AuthCard can show err.message
+    
+    const { access_token } = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: { username, password },
+      auth: false, 
+    })
+    setToken(access_token)
+    const me = await apiFetch('/auth/me')
+    setUser(me)
+    setStatus('authenticated')
   }
 
   const signup = async ({ name, username, password, role }) => {
     // TODO step 14: POST /auth/signup (auth: false), then `await login(username, password)`
-    throw new Error('TODO step 14: signup')
+      const { user } = await apiFetch('/auth/signup', {
+        method: 'POST',
+        body: {name, username, password, role},
+        auth: false,
+      })
+      await login(username, password)
   }
 
   const logout = () => {
     // TODO step 14: clearToken(), setUser(null), setStatus('anonymous')
-    throw new Error('TODO step 14: logout')
+    clearToken()
+    setUser(null)
+    setStatus('anonymous')
   }
 
   return (
