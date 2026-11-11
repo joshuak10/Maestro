@@ -1,6 +1,6 @@
 # Maestro (tuner)
 
-A browser tuner backed by a PyTorch note classifier, plus teacher/student accounts: a teacher assigns scales to a student by username, and the student sees them after logging in.
+A browser tuner backed by a PyTorch note classifier, plus teacher/student accounts: a teacher assigns scales to a student by username, and the student sees them after logging in
 
 **Stack:** FastAPI · SQLAlchemy 2 + Alembic · Postgres · bcrypt + JWT · React (Vite)
 
